@@ -14,7 +14,7 @@ logging.basicConfig(
 # قراءة التوكن من متغير البيئة (آمن)
 TOKEN = os.getenv("BOT_TOKEN")
 if not TOKEN:
-    raise ValueError("8687541181:AAGImfmybwuBWOoH6BtxSVtSOD8zfquQ4-A")
+    raise ValueError("8687541181:AAH3ep_dhi6-3jD36v7dqyylanJ7YOWWmHY")
 # استقبال روابط يوتيوب وتنزيل الفيديو
 async def handle_youtube(update: Update, context: ContextTypes.DEFAULT_TYPE):
     url = update.message.text.strip()
