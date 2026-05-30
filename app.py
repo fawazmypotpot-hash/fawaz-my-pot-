@@ -1,39 +1,39 @@
-import logging
-import os
-from telegram import Update
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
-import yt_dlp
+الاستيراد.تسجيل  الدخول.
+الاستيراد. OS.  . os.
+منمنتحديث
+من...Telegram.ext    الاستيراد.   التطبيق،.
+الاستيراد.
 
 # إعداد اللوج
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
+تسجيل.التكسير  الأساسي.  (basicConfig(
+ الشكل = "% (asctime) s -% (name) s -% (levelname) s -% (رسالة) s" (s) ، "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+  المستوى   المستوى = تسجيل الدخول.     معلومات.
 )
 
-TOKEN = "8687541181:AAGImfmybwuBWOoH6BtxSVtSOD8zfquQ4-A"
+رمز = "8687541181: AGImfmybwuBWOoH6BtxSVtSOD8zfquQ4-A""8687541181: AGImfmybwuBWOoH6BtxSVtSOD8zfquQ4-A"
 
 # استقبال روابط يوتيوب وتنزيل الفيديو
-async def handle_youtube(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    url = update.message.text.strip()
+ASYNC.ديف. مقبض_يوتيوب. (تحديث: تحديث، السياق: ContextTypes.  :  تحديث،  السياق: ContextTypes.   Default_type): def handle_youtube(تحديث: تحديث، السياق: ContextTypes.DEFAULT_TYPE):
+ URL = تحديث. رسالة..text.strip () message.النص...شريط.()
 
-    # التحقق أن الرابط من يوتيوب فقط
-    if "youtube.com" not in url and "youtu.be" not in url:
-        await update.message.reply_text("❌ هذا الكود خاص بروابط يوتيوب فقط.")
-        return
+     # التحقق أن الرابط من يوتيوب فقط  
+      إذا لم يكن      "youtube.com"   إذا...شريط.في URL و  في URL و   إذا...شريط.في URL و  في URL و     
+          await update.message.reply_text("❌ هذا الكود خاص بروابط يوتيوب فقط.")  
+   العودة.  return 
 
-    await update.message.reply_text("⏳ جاري التحميل من يوتيوب...")
+   العودة.   
 
     ydl_opts = {
-        "format": "best[height<=720]/best",  # جودة متوسطة لتقليل الحجم
+          "format": "best[height<=720]/best",  # جودة متوسطة لتقليل الحجم  
         "outtmpl": "%(title)s.%(ext)s"
-    }
+ } }
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-            file_path = ydl.prepare_filename(info)
+ } 
+ "outtmpl": "% (العنوان) s.% (ext) s" 
 
-        # تنظيف الاسم من الرموز غير المدعومة
+         # تنظيف الاسم من الرموز غير المدعومة 
         safe_path = file_path.replace("·", "_").replace(":", "_").replace("|", "_").strip()
         if file_path != safe_path:
             os.rename(file_path, safe_path)
