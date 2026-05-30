@@ -1,6 +1,6 @@
 import logging
 import os
-من... telegram import Update
+from telegram import Update
 من... telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 import yt_dlp
 
