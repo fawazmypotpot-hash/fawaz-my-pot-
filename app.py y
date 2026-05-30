@@ -1,0 +1,81 @@
+import logging
+import os
+import tempfile
+from telegram import Update
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+import yt_dlp
+
+# إعداد نظام التسجيل
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO
+)
+
+# قراءة التوكن من متغير البيئة (آمن)
+TOKEN = os.getenv("BOT_TOKEN")
+if not TOKEN:
+    raise ValueError("BOT_TOKEN environment variable not set")
+
+# دالة تحميل الفيديو من يوتيوب
+async def handle_youtube(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    url = update.message.text.strip()
+
+    # التحقق من صحة الرابط
+    if "youtube.com" not in url and "youtu.be" not in url:
+        await update.message.reply_text("❌ الرجاء إرسال رابط يوتيوب صالح فقط.")
+        return
+
+    # إعلام المستخدم ببدء التحميل
+    status_msg = await update.message.reply_text("⏳ جاري تحميل الفيديو من يوتيوب...")
+
+    # استخدام مجلد مؤقت لتجنب بقاء الملفات
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # إعدادات yt-dlp: جودة 480p لضمان الحجم أقل من 50 ميجابايت
+        ydl_opts = {
+            "format": "best[height<=480]/best",
+            "outtmpl": os.path.join(tmpdir, "%(title)s.%(ext)s"),
+            "restrictfilenames": True,
+            "quiet": True,
+            "no_warnings": True,
+        }
+
+        try:
+            # تحميل الفيديو
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=True)
+                file_path = ydl.prepare_filename(info)
+
+            # حذف رسالة "جاري التحميل"
+            await status_msg.delete()
+
+            # إرسال الفيديو
+            with open(file_path, "rb") as f:
+                await update.message.reply_document(
+                    document=f,
+                    filename=os.path.basename(file_path),
+                    caption="✅ تم التحميل بنجاح!"
+                )
+
+        except Exception as e:
+            await status_msg.edit_text(f"❌ حدث خطأ: {str(e)[:200]}")
+            logging.error(f"Error downloading {url}: {e}")
+
+# دالة أمر /start
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "👋 أهلاً بك!\n\n"
+        "أرسل رابط فيديو من يوتيوب وسأقوم بتحميله وإرساله لك مباشرة.\n"
+        "الجودة: 480p (مناسبة للحجم أقل من 50 ميجابايت)."
+    )
+
+# الدالة الرئيسية
+def main():
+    app = Application.builder().token(TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_youtube))
+
+    logging.info("البوت يعمل...")
+    app.run_polling()
+
+if __name__ == "__main__":
+    main()
