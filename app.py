@@ -1,7 +1,7 @@
 import logging
 import os
 from telegram import Update
-من... telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 import yt_dlp
 
 # إعداد اللوج
